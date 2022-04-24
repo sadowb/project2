@@ -1,6 +1,6 @@
 //
 //  main.c
-//  postfix_infix
+//  TIRED
 //
 //  Created by abdelhadi marjane on 24/4/2022.
 //
@@ -13,11 +13,6 @@ typedef struct node
     char operator;
     struct node *next;
 }stack;
-typedef struct linked
-{
-    char number;
-    struct linked*next;
-}list;
 char expression[100];
 char postfix[100];
 stack *top = NULL;
@@ -32,7 +27,10 @@ int HigherPrecedence(int,char*);
 void pop(void);
 void InfixToPostfix(void);
 int check(int);
+void CheckErors(int i);
+void checkSpecialErors(char*,int i);
 int count = 0;
+int countpostfix = 0;
 int main()
 {
     int choice ;
@@ -80,8 +78,12 @@ int main()
 void InfixToPostfix()
 {
     int i = 0;
+    int special = i;
+    int checkspecial;
     int precedence = 0;
     char temp;
+    int j = 0;
+    int checkstack;
     printf("enter the infix expression\n");
     scanf("%s",expression);
     for ( i = 0; i <strlen(expression) ;  i++)
@@ -90,12 +92,13 @@ void InfixToPostfix()
         {
             temp = expression[i];
             
-            strcat(postfix, &temp);
+            postfix[countpostfix] = temp;
             printf("%c\n",temp);
             printf("\n postfix at index %d is %c \n",i,postfix[i]);
-            
-            
+         //   CheckErors(i);
             printf("\n %s\n",postfix);
+            countpostfix++;
+            printf("number of postfix is %d",countpostfix);
         }
         else if( ( expression[i] == '+'|| expression[i] == '-' || expression[i] == '*'|| expression[i] == '/'  ) )
         {
@@ -113,14 +116,42 @@ void InfixToPostfix()
             }
             else if(precedence == 1)
             {
-                for (int j = 0; j < count; j++)
+                
+                for ( j = 0; j < count + 1; j++)
+                {
+                    
+                    temp = top->operator;
+                    postfix[countpostfix++] = temp;
+                   // strcat(postfix,&temp);
+                    // checkSpecialErors(&temp, i);
+                    pop();
+                    
+                  //   if(expression[i] == '+' || expression[i] == '-')
+                   //     push(expression,i);
+                }
+              checkstack = StackIsEmpty();
+                special = i+1;
+              checkspecial = check(special);
+                if(checkspecial == 1 && checkstack == 1)
+                            {
+                                i--;
+                                push(expression,i);
+                                
+                                temp = expression[i];
+                                postfix[countpostfix] = temp;
+                                postfix[countpostfix] = top->operator;
+                                pop();
+                                printf("here is the postfix notation %s ",postfix);
+                            }
+                else if(checkspecial == 5 && checkstack == 0)
                 {
                     temp = top->operator;
-                    strcat(postfix,&temp);
+                    strcat(postfix, &temp);
                     pop();
+                   
                 }
-                
             }
+            
            
         }
 
@@ -203,7 +234,8 @@ void pop()
                         top = top->next;
                         free(tempo);
                         tempo = NULL;
-                    
+        countpostfix++;
+                        count--;
             }
     
     
@@ -244,5 +276,38 @@ int check(int i)
     {
         return 1;
     }
+    else if (expression[i] == '\0')
+    {
+        return 5;
+    }
+        
     return 0;
 }
+
+/*void CheckErors(int i)
+{
+    for(int check = 0;check<strlen(postfix);check++)
+    {
+            if(postfix[i]=='\x02' || postfix[i]=='\x01')
+            {
+                printf("there is an eror");
+                postfix[i] = '\0';
+               
+            }
+    }
+    
+}
+void checkSpecialErors(char* temp,int i)
+{
+    for(int check = 0;check<strlen(postfix);check++)
+    {
+            if(postfix[i]=='\x02' || postfix[i]=='\x01')
+            {
+                printf("there is an eror");
+                postfix[i] = *temp;
+               
+            }
+    }
+    
+}
+*/
