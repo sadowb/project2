@@ -24,12 +24,14 @@ int HigherPrecedence(int,char*);
 //void IN_Order();
 //void PRE_Order();
 //void Computing();
+char ArrayOfPostFixExpressions [100] [100];
 void pop(void);
 void InfixToPostfix(void);
 int check(int);
 void CheckErors(int i);
 void checkSpecialErors(char*,int i);
 int count = 0;
+
 int countpostfix = 0;
 int main()
 {
@@ -75,7 +77,7 @@ int main()
 
     return 0;
 }
-void InfixToPostfix()
+void InfixToPostfix() // this is the function that transforms from infix to postfix
 {
     int i = 0;
     int special = i;
@@ -86,38 +88,50 @@ void InfixToPostfix()
     int checkstack;
     printf("enter the infix expression\n");
     scanf("%s",expression);
-    for ( i = 0; i <strlen(expression) ;  i++)
+    for ( i = 0; i <strlen(expression) ;  i++) // this a loop that is for scaning the entire expression based on the lenght of the expression 
     {
-        if ( check(i))
+
+        if ( check(i)) // this fucntion checks and the send the id of the openrand that we are looking at and it checks if it is a number or a sign
         {
-            temp = expression[i];
+            temp = expression[i]; // if it is then it appends it to temp will hold the cureent charachter that the program is looking at
             
-            postfix[countpostfix] = temp;
-            printf("%c\n",temp);
-            printf("\n postfix at index %d is %c \n",i,postfix[i]);
+            postfix[countpostfix++] = temp; // then it will assing it to the postfix expression 
+            printf("%c\n",temp); // this is to see the character 
+
+            printf("\n postfix at index %d is %c \n",i,postfix[i]); // this is where i print the postfix expression 
          //   CheckErors(i);
             printf("\n %s\n",postfix);
-            countpostfix++;
-            printf("number of postfix is %d",countpostfix);
+            //countpostfix++; // this is to tell the program that we have added an expression and to keep track of the expression 
+            printf("number of postfix is %d",countpostfix); // this is to tell us the number of expressions not the + or - sign
         }
-        else if( ( expression[i] == '+'|| expression[i] == '-' || expression[i] == '*'|| expression[i] == '/'  ) )
+
+
+        else if( ( expression[i] == '+'|| expression[i] == '-' || expression[i] == '*'|| expression[i] == '/'  ) ) // if not then it will check if the current operand that the program is curently lokking at is a + or - sign 
         {
-            precedence = HigherPrecedence(i,expression);
-            if (precedence == 2) {
+            precedence = HigherPrecedence(i,expression); // precdence is a fucntion that would look at the stack and check for precedence it will return  a number that number would tell us if the current is greater of lees than the currnent one
+            if (precedence == 2) { // this is for the case when the stack is empty
                 printf("this is the first operand %c \n",top->operator);
             }
-            if(precedence == 4)
+            if(precedence == 4) // this is if the stack have + or - sign and the current expression have the same sign then it will push them to the stack 
             {
                 push(expression, i);
             }
-            if(precedence == 0)
+            if(precedence == 0) // this is to check if the current top is more important that the current character that we are looking at 
             {
-                push(expression, i);
+                push(expression, i); // push  the operator
             }
             else if(precedence == 1)
             {
+                while (top!=NULL)
+                {
+                    temp = top->operator;
+                    postfix[countpostfix++] = temp;
+                   
+                    pop();
+                }
+                push(expression,i);
                 
-                for ( j = 0; j < count + 1; j++)
+               /* for ( j = 0; j <= count ; j++)      // count keeps track of how many are in the stack
                 {
                     
                     temp = top->operator;
@@ -129,12 +143,13 @@ void InfixToPostfix()
                   //   if(expression[i] == '+' || expression[i] == '-')
                    //     push(expression,i);
                 }
+                
               checkstack = StackIsEmpty();
                 special = i+1;
               checkspecial = check(special);
                 if(checkspecial == 1 && checkstack == 1)
                             {
-                                i--;
+                                
                                 push(expression,i);
                                 
                                 temp = expression[i];
@@ -150,10 +165,13 @@ void InfixToPostfix()
                     pop();
                    
                 }
+                */
             }
             
            
         }
+        
+           
 
     }
     
@@ -193,19 +211,24 @@ int StackIsEmpty()
 }
 int HigherPrecedence(int i,char* variable)
 {
-    if (top == NULL) {
+    if (top == NULL) {     //this only works if the stack was emmpty
         push(variable,i);
         return 2;
     }
+
+    // thesse two are for checking importance 
     else if( ( top->operator =='+' || top->operator =='-')&& (expression[i] =='*' || expression[i] =='/' ) )
     {
-        return 0;
+        return 0; // this is to check if the top is more important than the current expression
 
     }
     else if( ( (top->operator =='*') || (top->operator =='/') ) && ( (expression[i] =='+') || (expression[i] =='-') ) )
-    {
-        return 1;
+    {                   
+        return 1; // same thing as above 
     }
+
+    // theses are for checking if the top and the current expressioin have the same sign then we push them
+
     else if( (  (top->operator =='+') || ( top->operator =='-') )&& ( (expression[i] =='+') || (expression[i] =='-') ) )
     {
     return 4;
@@ -215,10 +238,10 @@ int HigherPrecedence(int i,char* variable)
     return 4;
     }
     
-    return 4;
+    return 4; // this does'nt serve anything
 }
 void pop()
-{
+{                           // this function is used to pop the stack based on the importance
     stack *tempo;
     if(top == NULL)
     {
@@ -234,8 +257,7 @@ void pop()
                         top = top->next;
                         free(tempo);
                         tempo = NULL;
-        countpostfix++;
-                        count--;
+                        count--;           // this is to tell the program that it has less operands 
             }
     
     
@@ -254,7 +276,7 @@ void push(char* e,int i)
         }
         else
         {
-            count++;
+            count++;                // this is for pushing into the stack
             if (top == NULL)
             {
                 new->operator = operand ;
@@ -270,13 +292,13 @@ void push(char* e,int i)
         }
         
 }
-int check(int i)
+int check(int i)            // this is to check if the expression is a number or a sign
 {
     if(expression[i] == '0' || expression[i] == '1'  || expression[i] == '2'  || expression[i] == '3' || expression[i] == '4'  || expression[i] == '5'  || expression[i] == '6'  || expression[i] == '7'  || expression[i] == '8'  || expression[i] == '9')
     {
         return 1;
     }
-    else if (expression[i] == '\0')
+    else if (expression[i] == '\0')       // this is to check if we have arrived at the end of the expression
     {
         return 5;
     }
